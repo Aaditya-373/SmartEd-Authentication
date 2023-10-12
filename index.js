@@ -1,9 +1,12 @@
 const express = require('express')
-const app = express()
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
-const authRoute = require('./routes/auth')
+const jwt = require('jsonwebtoken')
+const authRouter = require('./routes/auth')
+const userDataRouter = require('./routes/users')
 dotenv.config()
+
+const app = express()
 //db
 mongoose.connect(process.env.DB_CONNECT_URL).then(() => {
     console.log("Connected to db!")
@@ -11,8 +14,19 @@ mongoose.connect(process.env.DB_CONNECT_URL).then(() => {
 )
 
 
+
+
 app.use(express.json())
-app.use('/api/user', authRoute)
+app.use('/api/users', authRouter)
+app.use('/api/users', userDataRouter)
+
+// const myFunction = async () => {
+//     const token = jwt.sign({ _id: 'abc' }, process.env.CLIENT_SECRET)
+//     console.log(token)
+// }
+
+// myFunction()
+
 
 
 app.listen(3000, () => {

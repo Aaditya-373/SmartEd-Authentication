@@ -1,9 +1,11 @@
 const router = require('express').Router()
-const User = require('../model/User')
+const User = require('../models/User')
 const Joi = require('joi')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-
+const validator = require('validator')
+const dotenv = require('dotenv')
+dotenv.config()
 
 //user details validation
 const registerValidationSchema = Joi.object({
@@ -35,7 +37,7 @@ router.post('/register', async (req, res) => {
     }
 
     //password hashing
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(req.body.password, 8);
 
     //saving a user to the database
     const user = new User({
@@ -45,11 +47,13 @@ router.post('/register', async (req, res) => {
     });
     try {
         const newUser = await user.save();
-        res.send('New user created with id' + newUser.id)
+        const token = await newUser.generateAuthToken()
+        res.send({ newUser, token })
+        // res.send('New user created with id' + newUser.id)
 
     }
     catch (error) {
-        res.status(400).send(err);
+        res.status(400).send(error);
 
     }
 })
@@ -74,11 +78,12 @@ router.post('/login', async (req, res) => {
     if (!isCorrectPassword) {
         return res.status(400).send('Incorrect password')
     }
-    
-    const token = jwt.sign({ _id: user.id }, process.env.CLIENT_SECRET)
-    res.header('auth_token', token).send(token)
-    // res.status(200).send('Successfully Logged in!')
-    
+
+    // const token = jwt.sign({ _id: user.id }, process.env.CLIENT_SECRET)
+    // res.header('auth_token', token).send(token)
+    // // res.status(200).send('Successfully Logged in!')
+    const token = await user.generateAuthToken()
+    res.send({ user, token })
 
 
 })

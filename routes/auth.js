@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
     //password hashing
     const hashedPassword = await bcrypt.hash(req.body.password, 8);
 
-    //saving a user to the database
+    //saving a user to db
     const user = new User({
         username: req.body.username,
         email: req.body.email,

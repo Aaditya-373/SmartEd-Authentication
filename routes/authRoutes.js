@@ -74,16 +74,22 @@ router.post('/login', async (req, res) => {
     if (!user) {
         return res.status(400).send('Invalid username or email')
     }
-    const isCorrectPassword = await bcrypt.compare(req.body.password, user.password)
-    if (!isCorrectPassword) {
-        return res.status(400).send('Incorrect password')
+    try {
+        const isCorrectPassword = await bcrypt.compare(req.body.password, user.password)
+        if (!isCorrectPassword) {
+            return res.status(400).send('Incorrect password')
+        }
+
+        // const token = jwt.sign({ _id: user.id }, process.env.CLIENT_SECRET)
+        // res.header('auth_token', token).send(token)
+        // // res.status(200).send('Successfully Logged in!')
+        const token = jwt.sign({ userId: user._id }, jwtkey)
+        res.send({ token })
+    }
+    catch (e) {
+        return res.status(422).send({ error: "must provide email or password" })
     }
 
-    // const token = jwt.sign({ _id: user.id }, process.env.CLIENT_SECRET)
-    // res.header('auth_token', token).send(token)
-    // // res.status(200).send('Successfully Logged in!')
-    const token = jwt.sign({ userId: user._id }, jwtkey)
-    res.send({ token })
 
 
 })

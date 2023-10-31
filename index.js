@@ -2,13 +2,13 @@ const express = require('express')
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const jwt = require('jsonwebtoken')
-const authRouter = require('./routes/auth')
+const authRouter = require('./routes/authRoutes')
 const userDataRouter = require('./routes/users')
 dotenv.config()
 
 const app = express()
 //db
-mongoose.connect(process.env.DB_CONNECT_URL).then(() => {
+mongoose.connect(process.env.DB_CONNECT_URL, { useNewUrlParser: true }).then(() => {
     console.log("Connected to db!")
 }).catch((error) => { console.log("Couldnt connect to db") }
 )
@@ -29,7 +29,7 @@ app.use('/api/users', userDataRouter)
 
 
 
-app.listen(3000, () => {
+app.listen(5050, () => {
     console.log("Server running on port 3000")
 })
 

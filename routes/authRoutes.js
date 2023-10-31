@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 const validator = require('validator')
 const dotenv = require('dotenv')
 dotenv.config()
-
+const jwtkey = process.env.CLIENT_SECRET
 //user details validation
 const registerValidationSchema = Joi.object({
     username: Joi.string().min(6).required(),
@@ -47,8 +47,8 @@ router.post('/register', async (req, res) => {
     });
     try {
         const newUser = await user.save();
-        const token = await newUser.generateAuthToken()
-        res.send({ newUser, token })
+        const token = jwt.sign({ userId: user._id }, jwtkey)
+        res.send({ token })
         // res.send('New user created with id' + newUser.id)
 
     }
@@ -82,8 +82,8 @@ router.post('/login', async (req, res) => {
     // const token = jwt.sign({ _id: user.id }, process.env.CLIENT_SECRET)
     // res.header('auth_token', token).send(token)
     // // res.status(200).send('Successfully Logged in!')
-    const token = await user.generateAuthToken()
-    res.send({ user, token })
+    const token = jwt.sign({ userId: user._id }, jwtkey)
+    res.send({ token })
 
 
 })
